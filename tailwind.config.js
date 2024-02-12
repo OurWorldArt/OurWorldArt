@@ -11,10 +11,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        customLightOrange: '#FFDAB9',
-        customOrange: '#F79D65',
-        customRed: '#F08080',
-        customPink: '#F4978E',
+        customLight: '#f9f3ee',
+        customLight2: '#faf9f9',
         alice_blue: { DEFAULT: '#ecf4f6', 100: '#1f3b42', 200: '#3e7684', 300: '#6aa9b9', 400: '#accfd8', 500: '#ecf4f6', 600: '#f1f7f8', 700: '#f5f9fa', 800: '#f8fbfc', 900: '#fcfdfd' },
         platinum: { DEFAULT: '#dae3df', 100: '#26332d', 200: '#4c655a', 300: '#749687', 400: '#a7bcb3', 500: '#dae3df', 600: '#e1e8e5', 700: '#e8eeeb', 800: '#f0f4f2', 900: '#f7f9f8' },
         pearl: { DEFAULT: '#ded3ba', 100: '#372f1b', 200: '#6e5d35', 300: '#a58c50', 400: '#c3b083', 500: '#ded3ba', 600: '#e4dcc8', 700: '#ebe5d6', 800: '#f2ede3', 900: '#f8f6f1' },
