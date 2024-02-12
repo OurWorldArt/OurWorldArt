@@ -1,35 +1,57 @@
 import { useState } from 'react';
+import ColorPicker from './colorPickerBar';
 
 const GridComponent = () => {
+    const gridWidth = 50; // Specify number of pixels horizontally
+    const gridHeight = 50; // Specify number of pixels vertically
     const [selectedColor, setSelectedColor] = useState('#000000');
 
-    // Créez un état pour stocker la couleur de chaque case de la grille
-    const [gridColors, setGridColors] = useState(Array(9).fill('#FFFFFF'));
+    // Create a matrix for the color grid
+    const [gridColors, setGridColors] = useState(
+        Array.from({ length: gridHeight }, () => Array(gridWidth).fill('#FFFFFF'))
+    );
 
-    const updateColor = (index : number) => {
-        const newGridColors = [...gridColors];
-        newGridColors[index] = selectedColor;
+    const [currentPixel, setCurrentPixel] = useState(null);
+
+    const updateColor = (rowIndex, colIndex) => {
+        const newGridColors = gridColors.map(row => [...row]);
+        newGridColors[rowIndex][colIndex] = selectedColor;
         setGridColors(newGridColors);
+        setCurrentPixel(null); // Deselect current pixel after color update
+    };
+
+    const handleColorChange = (e) => {
+        setSelectedColor(e.target.value);
+    };
+
+    const handlePixelClick = (rowIndex, colIndex) => {
+        setCurrentPixel({ rowIndex, colIndex });
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-3 gap-2">
-                {gridColors.map((color, index) => (
-                    <div
-                        key={index}
-                        className="w-24 h-24 cursor-pointer"
-                        style={{ backgroundColor: color }}
-                        onClick={() => updateColor(index)}
-                    ></div>
+        <div className="relative">
+            <div className="inline-block">
+                {gridColors.map((row, rowIndex) => (
+                    <div key={rowIndex} className="flex">
+                        {row.map((color, colIndex) => (
+                            <div
+                                key={`${rowIndex}-${colIndex}`}
+                                className="w-2 h-2 cursor-pointer" // Adjust w-2 h-2 to change pixel size
+                                style={{ backgroundColor: color }}
+                                onClick={() => handlePixelClick(rowIndex, colIndex)}
+                            />
+                        ))}
+                    </div>
                 ))}
             </div>
-            <input
-                type="color"
-                className="mt-4"
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-            />
+            {currentPixel !== null && (
+                <ColorPicker
+                    selectedColor={selectedColor}
+                    onColorChange={handleColorChange}
+                    onConfirm={() => updateColor(currentPixel.rowIndex, currentPixel.colIndex)}
+                    onCancel={() => setCurrentPixel(null)}
+                />
+            )}
         </div>
     );
 };
