@@ -1,7 +1,6 @@
 'use client'
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import ConnectWallet from '../../components/connectWallet'
 import GridComponent from '../../components/grid-components/gridComponent'
 import GridHeader from '../../components/grid-components/gridHeader'
 

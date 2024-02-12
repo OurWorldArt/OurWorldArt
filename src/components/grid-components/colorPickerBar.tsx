@@ -1,4 +1,6 @@
-const ColorPicker = ({ selectedColor, onColorChange, onConfirm, onCancel }) => {
+import { ColorPickerProps } from '../../types/index';
+
+const ColorPicker: React.FC<ColorPickerProps> = ({ selectedColor, onColorChange, onConfirm, onCancel }) => {
     return (
         <div className="absolute z-10 flex items-center space-x-2 p-2 bg-white border rounded shadow-lg">
             <input

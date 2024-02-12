@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ColorPicker from './colorPickerBar';
+import { PixelPosition } from '../../types/index';
 
 const GridComponent = () => {
     const gridWidth = 50; // Specify number of pixels horizontally
@@ -11,20 +12,20 @@ const GridComponent = () => {
         Array.from({ length: gridHeight }, () => Array(gridWidth).fill('#FFFFFF'))
     );
 
-    const [currentPixel, setCurrentPixel] = useState(null);
+    const [currentPixel, setCurrentPixel] = useState<PixelPosition | null>(null);
 
-    const updateColor = (rowIndex, colIndex) => {
+    const updateColor = (rowIndex: number, colIndex: number) => {
         const newGridColors = gridColors.map(row => [...row]);
         newGridColors[rowIndex][colIndex] = selectedColor;
         setGridColors(newGridColors);
         setCurrentPixel(null); // Deselect current pixel after color update
     };
 
-    const handleColorChange = (e) => {
+    const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedColor(e.target.value);
     };
 
-    const handlePixelClick = (rowIndex, colIndex) => {
+    const handlePixelClick = (rowIndex: number, colIndex: number) => {
         setCurrentPixel({ rowIndex, colIndex });
     };
 
