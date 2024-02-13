@@ -8,15 +8,15 @@ function App() {
   return (
     <div className='flex flex-col min-h-screen mx-auto' style={{ maxWidth: '1500px' }}>
       <Header />
-      <main className="flex-grow flex flex-col items-center justify-center">
-        <section className='relative text-center py-40'>
+      <main className="flex-grow">
+        <section className='text-center py-40 min-h-screen flex flex-col justify-center relative'>
           <div
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
             style={{
               background: 'linear-gradient(to bottom, rgba(201, 117, 156, 0.7) 40%, rgba(212, 137, 127, 0.5) 50%)',
-              filter: 'blur(180px)',
-              width: '550px',
-              height: '550px',
+              filter: 'blur(200px)',
+              width: '60%',
+              height: '60%',
             }}
           />
           <div className='relative z-10'>
