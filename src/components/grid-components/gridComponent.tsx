@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ColorPicker from './colorPickerBar';
 import { PixelPosition } from '../../types/index';
 import UpdateMatrixCellOnChain from './updateMatrixCellOnChain';
+import DisplayMatrixFromChain from './displayMatrixFromChain';
+// For useReadContract hook
+import { useReadContract } from 'wagmi'
+import { contractAddress, contractABI } from '../constants/constant';
+import { sepolia } from 'wagmi/chains' 
+
 
 const GridComponent = () => {
     const gridWidth = 50; // Specify number of pixels horizontally
@@ -15,6 +21,32 @@ const GridComponent = () => {
     );
 
     const [currentPixel, setCurrentPixel] = useState<PixelPosition | null>(null);
+
+    const result = useReadContract({
+        abi: contractABI,
+        address: contractAddress,
+        functionName: 'getMatrix',
+        chainId: sepolia.id,
+    })
+
+    // Fetch and display the matrix from the blockchain
+    useEffect(() => {
+        const fetchMatrix = async () => {
+            //const data = await DisplayMatrixFromChain(); !!!! (Don't work for the moment, so I use the useReadContract hook instead for the moment) !!!!!
+            const data = result;
+            console.log('data', data)
+            // Assuming the smart contract returns a flat array representing the grid
+            const colors = data.map(colorDecimal => `#${colorDecimal.toString(16).padStart(6, '0')}`);
+            console.log('colors', colors)
+            const newGridColors = [];
+            for (let i = 0; i < gridHeight; i++) {
+                newGridColors.push(colors.slice(i * gridWidth, (i + 1) * gridWidth));
+            }
+            setGridColors(newGridColors);
+        };
+
+        fetchMatrix().catch(console.error);
+    }, []);
 
     // This function updates the color on the blockchain
     const updateColorOnBlockchain = async (rowIndex: number, colIndex: number, colorHex: string) => {
