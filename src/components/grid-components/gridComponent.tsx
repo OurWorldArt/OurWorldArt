@@ -15,7 +15,7 @@ const GridComponent = () => {
     const [currentPixel, setCurrentPixel] = useState<PixelPosition | null>(null);
 
     // Fetch the matrix from the blockchain using the useReadContract hook
-    const result = useReadContract({
+    const resultReadGetMatrix = useReadContract({
         abi: contractABI,
         address: contractAddress,
         functionName: 'getMatrix',
@@ -24,12 +24,12 @@ const GridComponent = () => {
     // Fetch and display the matrix from the blockchain
     useEffect(() => {
         const fetchMatrix = async () => {
-            if (result.isLoading || !result.data) {
+            if (resultReadGetMatrix.isLoading || !resultReadGetMatrix.data) {
                 console.log('Waiting for data...');
                 return; // Exit if data is loading or not present
             }
             //const data = await DisplayMatrixFromChain(); //!!!! (Don't work for the moment, so I use the useReadContract hook instead) !!!!!
-            const data = result.data as number[];
+            const data = resultReadGetMatrix.data as number[];
             const colors = data.map((colorDecimal: number) => `#${colorDecimal.toString(16).padStart(6, '0')}`);
 
             const newGridColors = [];
@@ -39,7 +39,7 @@ const GridComponent = () => {
             setGridColors(newGridColors);
         };
         fetchMatrix().catch(console.error);
-    },  [result.isLoading, result.data]);
+    },  [resultReadGetMatrix.isLoading, resultReadGetMatrix.data]);
 
     // This function updates the color on the blockchain
     const updateColorOnBlockchain = async (rowIndex: number, colIndex: number, colorHex: string) => {
