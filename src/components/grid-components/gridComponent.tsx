@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import ColorPicker from './colorPickerBar';
 import { PixelPosition } from '../../types/index';
 import UpdateMatrixCellOnChain from './updateMatrixCellOnChain';
+import TransactionLoader from './transactionLoader';
 import { useReadContract } from 'wagmi'
 import { contractAddress, contractABI } from '../constants/constant';
 
@@ -13,6 +14,8 @@ const GridComponent = () => {
     const [gridColors, setGridColors] = useState( // Create a matrix for the color grid
         Array.from({ length: gridHeight }, () => Array(gridWidth).fill('#FFFFFF')));
     const [currentPixel, setCurrentPixel] = useState<PixelPosition | null>(null);
+    const [isTransactionLoading, setIsTransactionLoading] = useState(false); // To get the transaction status when someone updates a pixel
+    const [transactionHash, setTransactionHash] = useState(''); // To get the transaction hash when someone updates a pixel
 
     // Fetch the matrix from the blockchain using the useReadContract hook
     const resultReadGetMatrix = useReadContract({
@@ -20,7 +23,7 @@ const GridComponent = () => {
         address: contractAddress,
         functionName: 'getMatrix',
     })
-    
+
     // Fetch and display the matrix from the blockchain
     useEffect(() => {
         const fetchMatrix = async () => {
@@ -28,7 +31,6 @@ const GridComponent = () => {
                 console.log('Waiting for data...');
                 return; // Exit if data is loading or not present
             }
-            //const data = await DisplayMatrixFromChain(); //!!!! (Don't work for the moment, so I use the useReadContract hook instead) !!!!!
             const data = resultReadGetMatrix.data as number[];
             const colors = data.map((colorDecimal: number) => `#${colorDecimal.toString(16).padStart(6, '0')}`);
 
@@ -39,13 +41,30 @@ const GridComponent = () => {
             setGridColors(newGridColors);
         };
         fetchMatrix().catch(console.error);
-    },  [resultReadGetMatrix.isLoading, resultReadGetMatrix.data]);
+    }, [resultReadGetMatrix.isLoading, resultReadGetMatrix.data]);
 
     // This function updates the color on the blockchain
     const updateColorOnBlockchain = async (rowIndex: number, colIndex: number, colorHex: string) => {
         try {
             const colorDecimal = parseInt(colorHex.slice(1), 16); // Convert hex to decimal (Need to handle for rgb, ...)
-            await UpdateMatrixCellOnChain(rowIndex, colIndex, colorDecimal);
+            await UpdateMatrixCellOnChain(
+                rowIndex,
+                colIndex,
+                colorDecimal,
+                (hash) => {
+                    setTransactionHash(hash); // Update with transaction hash
+                    setIsTransactionLoading(true); // Set the loading indicator here, after receiving the hash
+                },
+                () => {
+                    setIsTransactionLoading(false); // End of transaction
+                    setTransactionHash(''); // Cleaning the hash
+                    // We can add more action here
+                },
+                (error) => {
+                    setIsTransactionLoading(false);
+                    console.error("Failed to update the matrix cell on the blockchain", error);
+                }
+            );
 
             // Upon successful blockchain update, update the local state to reflect the change
             const newGridColors = gridColors.map(row => [...row]);
@@ -91,16 +110,26 @@ const GridComponent = () => {
                     </div>
                 ))}
             </div>
-            {
+            {isTransactionLoading ? (
+                <TransactionLoader
+                    transactionHash={transactionHash}
+                    onTransactionConfirmed={() => {
+                        setIsTransactionLoading(false);
+                        setTransactionHash('');
+                        setCurrentPixel(null);
+                        // We could build a function that redirects the user to etherscan
+                    }}
+                />
+            ) : (
                 currentPixel !== null && (
-                    <ColorPicker // TO verify the pertinence of this component
+                    <ColorPicker
                         selectedColor={selectedColor}
                         onColorChange={handleColorChange}
                         onConfirm={() => updateColorOnBlockchain(currentPixel.rowIndex, currentPixel.colIndex, selectedColor)}
                         onCancel={() => setCurrentPixel(null)}
                     />
                 )
-            }
+            )}
         </div >
     );
 };
