@@ -2,58 +2,49 @@ import { useState, useEffect } from 'react';
 import ColorPicker from './colorPickerBar';
 import { PixelPosition } from '../../types/index';
 import UpdateMatrixCellOnChain from './updateMatrixCellOnChain';
-import DisplayMatrixFromChain from './displayMatrixFromChain';
-// For useReadContract hook
 import { useReadContract } from 'wagmi'
 import { contractAddress, contractABI } from '../constants/constant';
-import { sepolia } from 'wagmi/chains' 
-
 
 const GridComponent = () => {
     const gridWidth = 50; // Specify number of pixels horizontally
     const gridHeight = 50; // Specify number of pixels vertically
     const [selectedColor, setSelectedColor] = useState('#000000');
     const [hoveredPixel, setHoveredPixel] = useState<PixelPosition | null>(null);
-
-    // Create a matrix for the color grid
-    const [gridColors, setGridColors] = useState(
-        Array.from({ length: gridHeight }, () => Array(gridWidth).fill('#FFFFFF'))
-    );
-
+    const [gridColors, setGridColors] = useState( // Create a matrix for the color grid
+        Array.from({ length: gridHeight }, () => Array(gridWidth).fill('#FFFFFF')));
     const [currentPixel, setCurrentPixel] = useState<PixelPosition | null>(null);
 
+    // Fetch the matrix from the blockchain using the useReadContract hook
     const result = useReadContract({
         abi: contractABI,
         address: contractAddress,
         functionName: 'getMatrix',
-        chainId: sepolia.id,
     })
-
+    
     // Fetch and display the matrix from the blockchain
     useEffect(() => {
         const fetchMatrix = async () => {
-            //const data = await DisplayMatrixFromChain(); !!!! (Don't work for the moment, so I use the useReadContract hook instead for the moment) !!!!!
-            const data = result;
-            console.log('data', data)
-            // Assuming the smart contract returns a flat array representing the grid
-            const colors = data.map(colorDecimal => `#${colorDecimal.toString(16).padStart(6, '0')}`);
-            console.log('colors', colors)
+            if (result.isLoading || !result.data) {
+                console.log('Waiting for data...');
+                return; // Exit if data is loading or not present
+            }
+            //const data = await DisplayMatrixFromChain(); //!!!! (Don't work for the moment, so I use the useReadContract hook instead) !!!!!
+            const data = result.data as number[];
+            const colors = data.map((colorDecimal: number) => `#${colorDecimal.toString(16).padStart(6, '0')}`);
+
             const newGridColors = [];
             for (let i = 0; i < gridHeight; i++) {
                 newGridColors.push(colors.slice(i * gridWidth, (i + 1) * gridWidth));
             }
             setGridColors(newGridColors);
         };
-
         fetchMatrix().catch(console.error);
-    }, []);
+    },  [result.isLoading, result.data]);
 
     // This function updates the color on the blockchain
     const updateColorOnBlockchain = async (rowIndex: number, colIndex: number, colorHex: string) => {
         try {
-            console.log(`Updating color at row ${rowIndex} and column ${colIndex} to ${colorHex}`);
             const colorDecimal = parseInt(colorHex.slice(1), 16); // Convert hex to decimal (Need to handle for rgb, ...)
-            console.log(`Color in decimal: ${colorDecimal}`);
             await UpdateMatrixCellOnChain(rowIndex, colIndex, colorDecimal);
 
             // Upon successful blockchain update, update the local state to reflect the change
@@ -61,7 +52,6 @@ const GridComponent = () => {
             newGridColors[rowIndex][colIndex] = colorHex;
             setGridColors(newGridColors);
             setCurrentPixel(null); // Deselect current pixel after color update
-            // Add any additional success handling here, e.g., displaying a success message
         } catch (error) {
             console.error("Failed to update the matrix cell on the blockchain", error);
         }
