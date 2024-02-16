@@ -58,18 +58,17 @@ const GridComponent = () => {
                 () => {
                     setIsTransactionLoading(false); // End of transaction
                     setTransactionHash(''); // Cleaning the hash
-                    // We can add more action here
+                    
+                    // Upon successful blockchain update, update the local state to reflect the change
+                    const newGridColors = gridColors.map(row => [...row]);
+                    newGridColors[rowIndex][colIndex] = colorHex;
+                    setGridColors(newGridColors);
                 },
                 (error) => {
                     setIsTransactionLoading(false);
                     console.error("Failed to update the matrix cell on the blockchain", error);
                 }
             );
-
-            // Upon successful blockchain update, update the local state to reflect the change
-            const newGridColors = gridColors.map(row => [...row]);
-            newGridColors[rowIndex][colIndex] = colorHex;
-            setGridColors(newGridColors);
             setCurrentPixel(null); // Deselect current pixel after color update
         } catch (error) {
             console.error("Failed to update the matrix cell on the blockchain", error);
