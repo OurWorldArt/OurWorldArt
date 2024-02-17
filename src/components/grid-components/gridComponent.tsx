@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import ColorPicker from './colorPickerBar';
-import { PixelPosition } from '../../types/index';
+import { PixelPosition, GridComponentProps } from '../../types/index';
 import UpdateMatrixCellOnChain from './updateMatrixCellOnChain';
 import TransactionLoader from './transactionLoader';
 import { useReadContract } from 'wagmi'
 import { contractAddress, contractABI } from '../constants/constant';
 
-const GridComponent = () => {
+const GridComponent = ({ gridColors: updatedGridColors }: GridComponentProps) => {
     const gridWidth = 50; // Specify number of pixels horizontally
     const gridHeight = 50; // Specify number of pixels vertically
     const [selectedColor, setSelectedColor] = useState('#000000');
@@ -74,6 +74,12 @@ const GridComponent = () => {
             console.error("Failed to update the matrix cell on the blockchain", error);
         }
     };
+
+    useEffect(() => { // Update the grid data when they click synchronize in the gridHeader
+        if (updatedGridColors.length > 0) {
+            setGridColors(updatedGridColors);
+        }
+    }, [updatedGridColors]); 
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedColor(e.target.value);

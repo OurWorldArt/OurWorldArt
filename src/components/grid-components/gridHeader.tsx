@@ -4,8 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ConnectWallet from '../connectWallet';
+import { GridHeaderProps } from '../../types/index';
 
-const GridHeader = () => {
+const GridHeader = ({ synchronizeGrid }: GridHeaderProps) => {
     return (
         <header className="flex justify-center items-center py-2 bg-white">
             <div className="flex justify-between items-center w-full pl-4" style={{ maxWidth: '1500px' }}>
@@ -26,6 +27,11 @@ const GridHeader = () => {
                         </span>
                     </a>
                 </Link>
+                <div>
+                    <button onClick={synchronizeGrid} className="ml-auto px-2 py-1 bg-old_rose hover:bg-alice_blue-300 text-white rounded-xl">
+                        Synchronization
+                    </button>
+                </div>
                 <div>
                     <ConnectWallet />
                 </div>

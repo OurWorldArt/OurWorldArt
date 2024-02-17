@@ -1,9 +1,14 @@
 import { type WaitForTransactionReceiptReturnType } from '@wagmi/core'
 
+// gridComponent.tsx
 export interface PixelPosition {
   rowIndex: number;
   colIndex: number;
 }
+export interface GridComponentProps {
+  gridColors: string[][];
+}
+
 
 export interface ColorPickerProps {
   selectedColor: string;
@@ -21,3 +26,8 @@ export interface TransactionLoaderProps {
 export type HashCallback = (hash: string) => void;
 export type TransactionCallback = (data: WaitForTransactionReceiptReturnType) => void;
 export type ErrorCallback = (error: Error) => void;
+
+// gridHeader.tsx
+export interface GridHeaderProps {
+  synchronizeGrid: () => Promise<void>; 
+}
