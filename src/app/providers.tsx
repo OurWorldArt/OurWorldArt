@@ -6,13 +6,19 @@ import { WagmiProvider } from 'wagmi'
 
 import { config } from '@/wagmi'
 
+import '@rainbow-me/rainbowkit/styles.css';
+
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+
 export function Providers(props: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient())
 
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        {props.children}
+        <RainbowKitProvider>
+          {props.children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   )

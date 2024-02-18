@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ConnectWallet from '../connectWallet';
 import { GridHeaderProps } from '../../types/index';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const GridHeader = ({ synchronizeGrid }: GridHeaderProps) => {
     return (
@@ -33,7 +34,7 @@ const GridHeader = ({ synchronizeGrid }: GridHeaderProps) => {
                     </button>
                 </div>
                 <div>
-                    <ConnectWallet />
+                    <ConnectButton />
                 </div>
             </div>
         </header>
