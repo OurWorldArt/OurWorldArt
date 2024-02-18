@@ -1,37 +1,106 @@
 'use client'
-
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { injected } from 'wagmi/connectors'
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 function ConnectWallet() {
-  const account = useAccount()
-  const { connect } = useConnect()
-  const { disconnect } = useDisconnect()
-
   return (
-    <>
-      <div className="flex justify-center">
-        {account.status === 'disconnected' && (
-          <button
-            onClick={() => connect({ connector: injected() })}
-            type="button"
-            className="bg-thulian_pink-600 hover:bg-old_rose text-white font-semibold py-1 px-4 border border-transparent rounded-full shadow-lg transition ease-in-out duration-300 transform hover:-translate-y-1 hover:scale-105"
-          >
-            Connect Wallet
-          </button>
-        )}
-        {account.status === 'connected' && (
-          <button
-            type="button"
-            onClick={() => disconnect()}
-            className="bg-alice_blue-300 hover:bg-thulian_pink-600 text-white font-semibold py-1 px-4 border border-transparent rounded-full shadow-lg transition ease-in-out duration-300 transform hover:-translate-y-1 hover:scale-105"
-          >
-            Disconnect Wallet
-          </button>
-        )}
-      </div>
-    </>
-  )
-}
+    <ConnectButton.Custom>
+      {({
+        account,
+        chain,
+        openAccountModal,
+        openChainModal,
+        openConnectModal,
+        authenticationStatus,
+        mounted,
+      }) => {
+        const ready = mounted && authenticationStatus !== 'loading';
+        const connected =
+          ready &&
+          account &&
+          chain &&
+          (!authenticationStatus || authenticationStatus === 'authenticated');
 
-export default ConnectWallet
+        // Button base style
+        const baseStyle =
+          "ml-auto px-2 py-1 rounded-xl transition-colors duration-300 ease-in-out";
+
+        // Style variations
+        const connectStyle = `bg-alice_blue-300 hover:bg-alice_blue-200 text-white ${baseStyle}`;
+        const chainStyle = `bg-alice_blue-300 hover:bg-alice_blue-200 text-white ${baseStyle}`;
+        const accountStyle = `bg-alice_blue-300 hover:bg-alice_blue-200 text-white ${baseStyle}`;
+
+        return (
+          <div
+            {...(!ready && {
+              'aria-hidden': true,
+              'style': {
+                opacity: 0,
+                pointerEvents: 'none',
+                userSelect: 'none',
+              },
+            })}
+          >
+            {(() => {
+              if (!connected) {
+                return (
+                  <button onClick={openConnectModal} type="button" className={connectStyle}>
+                    Connect Wallet
+                  </button>
+                );
+              }
+
+              if (chain.unsupported) {
+                return (
+                  <button onClick={openChainModal} type="button" className={chainStyle}>
+                    Wrong network
+                  </button>
+                );
+              }
+
+              return (
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button onClick={openChainModal} type="button" className={chainStyle} style={{ display: 'flex', alignItems: 'center' }}>
+                    {chain.hasIcon && (
+                      <div
+                        style={{
+                          background: chain.iconBackground,
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '9999px',
+                          overflow: 'hidden',
+                          marginRight: '4px',
+                          display: 'flex', // Assurez-vous que cela est nécessaire, surtout si vous n'avez qu'une image à l'intérieur
+                        }}
+                      >
+                        {chain.iconUrl && (
+                          <img
+                            alt={chain.name ?? 'Chain icon'}
+                            src={chain.iconUrl}
+                            style={{ width: '24px', height: '24px' }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {chain.name}
+                  </button>
+
+                  <button onClick={openAccountModal} type="button" className={`${accountStyle} flex items-center gap-2`}>
+                    <span className="text-white">{account.displayName}</span>
+                    {account.displayBalance && (
+                      <span className="text-old_rose-400 bg-customLight2 rounded px-2">
+                        ({account.displayBalance})
+                      </span>
+                    )}
+                  </button>
+
+                </div>
+              );
+            })()}
+          </div>
+        );
+      }}
+    </ConnectButton.Custom>
+  );
+};
+
+export default ConnectWallet;

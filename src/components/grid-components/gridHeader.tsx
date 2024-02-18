@@ -5,12 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import ConnectWallet from '../connectWallet';
 import { GridHeaderProps } from '../../types/index';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const GridHeader = ({ synchronizeGrid }: GridHeaderProps) => {
     return (
         <header className="flex justify-center items-center py-2 bg-white">
-            <div className="flex justify-between items-center w-full pl-4" style={{ maxWidth: '1500px' }}>
+            <div className="flex justify-between items-center w-full px-4" style={{ maxWidth: '1500px' }}>
+                {/* Logo and Link */}
                 <Link href="/" legacyBehavior>
                     <a className="flex items-center">
                         <div className="mr-5 relative">
@@ -28,13 +28,11 @@ const GridHeader = ({ synchronizeGrid }: GridHeaderProps) => {
                         </span>
                     </a>
                 </Link>
-                <div>
-                    <button onClick={synchronizeGrid} className="ml-auto px-2 py-1 bg-old_rose hover:bg-alice_blue-300 text-white rounded-xl">
-                        Synchronization
+                <div className="flex items-center gap-4">
+                    <button onClick={synchronizeGrid} className="px-2 py-1 bg-old_rose hover:bg-alice_blue-300 text-white rounded-lg">
+                        Refresh
                     </button>
-                </div>
-                <div>
-                    <ConnectButton />
+                    <ConnectWallet />
                 </div>
             </div>
         </header>
